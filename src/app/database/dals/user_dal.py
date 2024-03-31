@@ -4,13 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import User
 
 
-class UserDao:
+class UserDAO:
     def __init__(self, session: AsyncSession):
         self.session = session
 
     async def get_one(self, user_id):
         async with self.session.begin():
             result = await self.session.execute(select(User).where(User.id == user_id))
+            return await result.scalar()
+
+    async def get_one_by_chat_id(self, chat_id):
+        async with self.session.begin():
+            result = await self.session.execute(select(User).where(User.chat_id == chat_id))
             return await result.scalar()
 
     async def get_all(self):

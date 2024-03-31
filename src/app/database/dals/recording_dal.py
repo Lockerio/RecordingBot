@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import Recording
 
 
-class RecordingDao:
+class RecordingDAO:
     def __init__(self, session: AsyncSession):
         self.session = session
 
