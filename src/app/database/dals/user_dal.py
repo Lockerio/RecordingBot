@@ -16,7 +16,8 @@ class UserDAO:
     async def get_one_by_chat_id(self, chat_id):
         async with self.session.begin():
             result = await self.session.execute(select(User).where(User.chat_id == chat_id))
-            return await result.scalar()
+            user = result.scalar_one_or_none()
+            return user
 
     async def get_all(self):
         async with self.session.begin():

@@ -15,7 +15,7 @@ class UserService:
         return await self.serializer.get_all()
 
     async def create(self, data):
-        if await self.get_one(data['id']):
+        if await self.get_one_by_chat_id(data['chat_id']):
             return False
         await self.serializer.create(data)
         return True
