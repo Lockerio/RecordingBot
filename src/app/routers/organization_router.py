@@ -1,9 +1,11 @@
+import traceback
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from app.database.container import user_service
+from app.database.container import organization_service, user_service
 from app.messages_templates.organization_messages_template import CREATE_ORGANIZATION_MESSAGE, \
     CREATE_ORGANIZATION_SLOTS_MESSAGE, ORGANIZATION_CREATION_ERROR_MESSAGE, CREATED_ORGANIZATION_MESSAGE, \
     GET_ORGANIZATION_INVITE_CODE_MESSAGE
@@ -33,20 +35,23 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
 
     organization_name = data["organization_name"]
     default_slots_amount = data["default_slots_amount"]
-    invite_code = hash_string(organization_name)
-    user_data = {
-        "user_id": message.chat.id,
+    invite_code = await hash_string(organization_name)
+    user = await user_service.get_one_by_chat_id(message.chat.id)
+
+    organization_data = {
+        "user_id": user.id,
         "organization_name": organization_name,
-        "default_slots_amount": default_slots_amount,
+        "default_slots_amount": int(default_slots_amount),
         "invite_code": invite_code
     }
 
     try:
-        await user_service.create(user_data)
-    except:
+        await organization_service.create(organization_data)
+    except Exception as e:
+        traceback.print_exc()
+        await message.answer(ORGANIZATION_CREATION_ERROR_MESSAGE)
+    else:
         await message.answer(CREATED_ORGANIZATION_MESSAGE)
         await message.answer(GET_ORGANIZATION_INVITE_CODE_MESSAGE + invite_code)
-    else:
-        await message.answer(ORGANIZATION_CREATION_ERROR_MESSAGE)
     finally:
         await state.clear()

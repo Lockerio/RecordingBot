@@ -15,10 +15,7 @@ class OrganizationService:
         return await self.serializer.get_all_by_user_id(user_id)
 
     async def create(self, data):
-        if await self.get_one(data['id']):
-            return False
         await self.serializer.create(data)
-        return True
 
     async def update(self, data):
         organization_id = data.get("id")
