@@ -1,19 +1,17 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import CommandStart, Command
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
 
 from app.config import BOT_API
-from app.messages_templates.message_templates import START_MESSAGE
-from app.routers.create_router import create_router
+from app.routers.organization_router import organization_router
+from app.routers.user_router import user_router
 from app.routers.main_router import main_router
 
 storage = MemoryStorage()
 dp = Dispatcher()
 dp.include_routers(
-    main_router, create_router
+    main_router, user_router, organization_router
 )
 
 
