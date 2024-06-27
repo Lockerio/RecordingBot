@@ -52,6 +52,6 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
         await message.answer(ORGANIZATION_CREATION_ERROR_MESSAGE)
     else:
         await message.answer(CREATED_ORGANIZATION_MESSAGE)
-        await message.answer(GET_ORGANIZATION_INVITE_CODE_MESSAGE + invite_code)
+        await message.answer(f"{GET_ORGANIZATION_INVITE_CODE_MESSAGE} `{invite_code}`", parse_mode="MarkdownV2")
     finally:
         await state.clear()
