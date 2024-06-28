@@ -24,7 +24,7 @@ def upgrade():
         'Roles',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('title', sa.String(), nullable=False),
-        sa.Column('password_hash', sa.String(), nullable=False),
+        sa.Column('password_hash', sa.String(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('title')
     )

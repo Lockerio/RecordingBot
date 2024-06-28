@@ -8,7 +8,7 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, nullable=False, unique=True)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)
 
 
 class User(Base):
