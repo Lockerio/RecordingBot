@@ -14,6 +14,12 @@ class RoleDAO:
             role = result.scalar_one_or_none()
             return role
 
+    async def get_one_by_title(self, title):
+        async with self.session.begin():
+            result = await self.session.execute(select(Role).where(Role.title == title))
+            role = result.scalar_one_or_none()
+            return role
+
     async def get_all(self):
         async with self.session.begin():
             result = await self.session.execute(select(Role))

@@ -24,7 +24,15 @@ class UserService:
         user_chat_id = data.get("chat_id")
         try:
             user = await self.get_one_by_chat_id(user_chat_id)
-            user.user_fullname = data.get("user_fullname")
+
+            user_fullname = data.get("user_fullname")
+            if user_fullname:
+                user.user_fullname = user_fullname
+
+            role_id = data.get("role_id")
+            if role_id:
+                user.role_id = role_id
+
         except Exception:
             raise Exception('There is no such user in db.')
 
