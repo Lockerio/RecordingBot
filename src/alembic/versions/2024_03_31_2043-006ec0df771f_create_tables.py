@@ -19,60 +19,76 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade():
-    # Создание таблицы Users
-    op.create_table('Users',
-        Column('id', Integer(), nullable=False),
-        Column('chat_id', Integer(), unique=True),
-        Column('user_fullname', String(), nullable=False),
-        # Другие столбцы, если есть
-        PrimaryKeyConstraint('id')
+    # Создание таблицы Role
+    op.create_table(
+        'Roles',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('title', sa.String(), nullable=False),
+        sa.Column('password_hash', sa.String(), nullable=False),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('title')
     )
 
-    # Создание таблицы Organizations
-    op.create_table('Organizations',
-        Column('id', Integer(), nullable=False),
-        Column('organization_name', String(), unique=True, nullable=False),
-        Column('invite_code', String(), nullable=False),
-        Column('default_slots_amount', Integer(), server_default='4'),
-        Column('user_id', Integer(), ForeignKey('Users.id'), nullable=False),
-        # Другие столбцы, если есть
-        PrimaryKeyConstraint('id')
+    # Создание таблицы User
+    op.create_table(
+        'Users',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('chat_id', sa.Integer(), nullable=True),
+        sa.Column('user_fullname', sa.String(), nullable=False),
+        sa.Column('role_id', sa.Integer(), sa.ForeignKey('Roles.id'), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('chat_id')
     )
 
-    # Создание таблицы Users_Organizations
-    op.create_table('Users_Organizations',
-        Column('id', Integer(), nullable=False),
-        Column('user_id', Integer(), ForeignKey('Users.id'), nullable=False),
-        Column('organization_id', Integer(), ForeignKey('Organizations.id'), nullable=False),
-        # Другие столбцы, если есть
-        PrimaryKeyConstraint('id')
+    # Создание таблицы Organization
+    op.create_table(
+        'Organizations',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('organization_name', sa.String(), nullable=False),
+        sa.Column('invite_code', sa.String(), nullable=False),
+        sa.Column('default_slots_amount', sa.Integer(), nullable=True, server_default=sa.text('4')),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('Users.id'), nullable=False),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('organization_name')
     )
 
-    # Создание таблицы RecordingWeeks
-    op.create_table('RecordingWeeks',
-        Column('id', Integer(), nullable=False),
-        Column('start_date', Date(), nullable=False),
-        Column('end_date', Date(), nullable=False),
-        # Другие столбцы, если есть
-        PrimaryKeyConstraint('id')
+    # Создание таблицы User_Organization
+    op.create_table(
+        'Users_Organizations',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('Users.id'), nullable=False),
+        sa.Column('organization_id', sa.Integer(), sa.ForeignKey('Organizations.id'), nullable=False),
+        sa.Column('is_current_organization', sa.Boolean(), nullable=False, server_default=sa.false()),
+        sa.PrimaryKeyConstraint('id')
     )
 
-    # Создание таблицы Recordings
-    op.create_table('Recordings',
-        Column('id', Integer(), nullable=False),
-        Column('date', Date(), nullable=False),
-        Column('time', Time(), nullable=False),
-        Column('slots_amount', Integer(), nullable=False),
-        Column('recording_week_id', Integer(), ForeignKey('RecordingWeeks.id'), nullable=False),
-        Column('organization_id', Integer(), ForeignKey('Organizations.id'), nullable=False),
-        # Другие столбцы, если есть
-        PrimaryKeyConstraint('id')
+    # Создание таблицы RecordingWeek
+    op.create_table(
+        'RecordingWeeks',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('start_date', sa.Date(), nullable=False),
+        sa.Column('end_date', sa.Date(), nullable=False),
+        sa.PrimaryKeyConstraint('id')
     )
+
+    # Создание таблицы Recording
+    op.create_table(
+        'Recordings',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('date', sa.Date(), nullable=False),
+        sa.Column('time', sa.Time(), nullable=False),
+        sa.Column('slots_amount', sa.Integer(), nullable=False),
+        sa.Column('recording_week_id', sa.Integer(), sa.ForeignKey('RecordingWeeks.id'), nullable=False),
+        sa.Column('organization_id', sa.Integer(), sa.ForeignKey('Organizations.id'), nullable=False),
+        sa.PrimaryKeyConstraint('id')
+    )
+
 
 def downgrade():
+    # Удаление таблиц
     op.drop_table('Recordings')
     op.drop_table('RecordingWeeks')
     op.drop_table('Users_Organizations')
     op.drop_table('Organizations')
     op.drop_table('Users')
-
+    op.drop_table('Roles')

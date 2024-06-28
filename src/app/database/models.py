@@ -1,6 +1,14 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time, Boolean
 
 from app.database.database import Base
+
+
+class Role(Base):
+    __tablename__ = 'Roles'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String, nullable=False, unique=True)
+    password_hash = Column(String, nullable=False)
 
 
 class User(Base):
@@ -9,6 +17,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     chat_id = Column(Integer, unique=True)
     user_fullname = Column(String, nullable=False)
+    role_id = Column(Integer, ForeignKey('Roles.id'))
 
 
 class Organization(Base):
@@ -27,6 +36,7 @@ class User_Organization(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     organization_id = Column(Integer, ForeignKey('Organizations.id'), nullable=False)
+    is_current_organization = Column(Boolean, default=False, nullable=False)
 
 
 class RecordingWeek(Base):

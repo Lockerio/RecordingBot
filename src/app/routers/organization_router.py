@@ -55,3 +55,8 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
         await message.answer(f"{GET_ORGANIZATION_INVITE_CODE_MESSAGE} `{invite_code}`", parse_mode="MarkdownV2")
     finally:
         await state.clear()
+
+
+@organization_router.message(Command("set_organization"))
+async def set_organization_handler(message: Message) -> None:
+    pass

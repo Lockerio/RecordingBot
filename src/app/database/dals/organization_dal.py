@@ -25,6 +25,11 @@ class OrganizationDAO:
             result = await self.session.execute(select(Organization))
             return result.scalars().all()
 
+    async def get_all_by_user_id(self, user_id):
+        async with self.session.begin():
+            result = await self.session.execute(select(Organization).where(Organization.user_id == user_id))
+            return result.scalars().all()
+
     async def create(self, data):
         organization = Organization(**data)
         async with self.session.begin():
