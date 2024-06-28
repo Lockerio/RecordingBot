@@ -8,6 +8,9 @@ class OrganizationService:
     async def get_one(self, organization_id):
         return await self.serializer.get_one(organization_id)
 
+    async def get_one_by_invite_code(self, invite_code):
+        return await self.serializer.get_one_by_invite_code(invite_code)
+
     async def get_all(self):
         return await self.serializer.get_all()
 

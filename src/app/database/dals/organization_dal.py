@@ -11,7 +11,14 @@ class OrganizationDAO:
     async def get_one(self, organization_id):
         async with self.session.begin():
             result = await self.session.execute(select(Organization).where(Organization.id == organization_id))
-            return await result.scalar()
+            organization = result.scalar_one_or_none()
+            return organization
+
+    async def get_one_by_invite_code(self, invite_code):
+        async with self.session.begin():
+            result = await self.session.execute(select(Organization).where(Organization.invite_code == invite_code))
+            organization = result.scalar_one_or_none()
+            return organization
 
     async def get_all(self):
         async with self.session.begin():

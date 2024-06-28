@@ -15,10 +15,7 @@ class UserOrganizationService:
         return await self.serializer.get_all_user_id(user_id)
 
     async def create(self, data):
-        if await self.get_one(data['id']):
-            return False
         await self.serializer.create(data)
-        return True
 
     async def delete(self, user_organization_id):
         await self.serializer.delete(user_organization_id)
