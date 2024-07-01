@@ -5,8 +5,7 @@ from aiogram.types import Message
 
 from app.constants.roles import OWNER
 from app.database.container import role_service, user_service
-from app.messages_templates.role_messages_template import INCORRECT_PASSWORD_MESSAGE, SET_ROLE_ERROR_MESSAGE, \
-    SET_ROLE_SUCCESS_MESSAGE
+from app.messages_templates.role_messages_template import RoleMessagesTemplate
 from app.state_groups.role_state_group import RoleStateGroup
 from app.utils.hash_string import hash_string
 
@@ -27,6 +26,7 @@ async def set_owner_role_command_handler(message: Message, state: FSMContext):
             "chat_id": message.chat.id,
             "role_id": role.id
         })
+        await message.answer(await RoleMessagesTemplate.get_role_setting_success_message())
 
 
 @role_router.message(RoleStateGroup.password)
@@ -46,11 +46,11 @@ async def set_owner_role_handler(message: Message, state: FSMContext):
         try:
             await user_service.create(user_data)
         except:
-            await message.answer(SET_ROLE_ERROR_MESSAGE)
+            await message.answer(await RoleMessagesTemplate.get_role_setting_error_message())
         else:
-            await message.answer(SET_ROLE_SUCCESS_MESSAGE)
+            await message.answer(await RoleMessagesTemplate.get_role_setting_success_message())
         finally:
             await state.clear()
     else:
-        await message.answer(INCORRECT_PASSWORD_MESSAGE)
+        await message.answer(await RoleMessagesTemplate.get_incorrect_password_message())
         await state.clear()

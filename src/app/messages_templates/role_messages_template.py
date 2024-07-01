@@ -1,11 +1,15 @@
-SET_ROLE_SUCCESS_MESSAGE = """
-Роль успешно изменена!
-"""
+class RoleMessagesTemplate:
+    @staticmethod
+    async def get_role_setting_success_message():
+        message = "Роль успешно изменена"
+        return message
 
-SET_ROLE_ERROR_MESSAGE = """
-Ошибка в при установки роли!
-"""
+    @staticmethod
+    async def get_role_setting_error_message():
+        message = "Ошибка в при установки роли"
+        return message
 
-INCORRECT_PASSWORD_MESSAGE = """
-Вы ввели не корректный пароль. Изменить роль не удалось
-"""
+    @staticmethod
+    async def get_incorrect_password_message():
+        message = "Ошибка в при установки роли"
+        return message

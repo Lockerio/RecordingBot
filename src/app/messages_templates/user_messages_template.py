@@ -1,11 +1,16 @@
-CREATE_PROFILE_MESSAGE = """
-Введите свое ФИО, пожалуйста. Это нужно, чтобы человек, к которому вы записались, понимал кто к нему записался.
-"""
+class UserMessagesTemplate:
+    @staticmethod
+    async def get_create_profile_message():
+        message = ("Введите свое ФИО, пожалуйста. Это нужно, чтобы человек, "
+                   "к которому вы записались, понимал кто к нему записался")
+        return message
 
-PROFILE_CREATED_MESSAGE = """
-Профиль успешно создан!
-"""
+    @staticmethod
+    async def get_profile_creation_success_message():
+        message = "Профиль успешно создан!"
+        return message
 
-PROFILE_CREATION_ERROR_MESSAGE = """
-Ошибка в создании профиля(
-"""
+    @staticmethod
+    async def get_profile_creation_error_message():
+        message = "Ошибка в создании профиля"
+        return message

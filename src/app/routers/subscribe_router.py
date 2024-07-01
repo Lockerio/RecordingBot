@@ -6,8 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.database.container import user_service, user_organization_service, organization_service
-from app.messages_templates.subscribe_message_template import WAIT_INVITE_CODE_MESSAGE, SUBSCRIPTION_ERROR_MESSAGE, \
-    SUBSCRIPTION_SUCCESS_MESSAGE
+from app.messages_templates.subscribe_messages_template import SubscribeMessagesTemplate
 from app.state_groups.subscribe_state_group import SubscribeStateGroup
 
 subscribe_router = Router()
@@ -16,7 +15,7 @@ subscribe_router = Router()
 @subscribe_router.message(Command("subscribe_to_organization"))
 async def subscribe_to_organization_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(SubscribeStateGroup.invite_code)
-    await message.answer(WAIT_INVITE_CODE_MESSAGE)
+    await message.answer(await SubscribeMessagesTemplate.get_wait_invite_code_message())
 
 
 @subscribe_router.message(SubscribeStateGroup.invite_code)
@@ -36,8 +35,8 @@ async def subscribed_to_organization_handler(message: Message, state: FSMContext
         await user_organization_service.create(user_organization_data)
     except Exception as e:
         traceback.print_exc()
-        await message.answer(SUBSCRIPTION_ERROR_MESSAGE)
+        await message.answer(await SubscribeMessagesTemplate.get_subscription_error_message())
     else:
-        await message.answer(f"{SUBSCRIPTION_SUCCESS_MESSAGE} **{organization.organization_name}**", parse_mode="MarkdownV2")
+        await message.answer(await SubscribeMessagesTemplate.get_subscription_success_message(organization.organization_name))
     finally:
         await state.clear()

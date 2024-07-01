@@ -4,8 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.database.container import user_service
-from app.messages_templates.user_messages_template import CREATE_PROFILE_MESSAGE, PROFILE_CREATION_ERROR_MESSAGE, \
-    PROFILE_CREATED_MESSAGE
+from app.messages_templates.user_messages_template import UserMessagesTemplate
 from app.state_groups.profile_state_group import ProfileStateGroup
 
 
@@ -14,7 +13,7 @@ user_router = Router()
 
 @user_router.message(Command("create"))
 async def command_create_handler(message: Message, state: FSMContext) -> None:
-    await message.answer(CREATE_PROFILE_MESSAGE)
+    await message.answer(await UserMessagesTemplate.get_create_profile_message())
     await state.set_state(ProfileStateGroup.full_name)
 
 
@@ -31,8 +30,8 @@ async def create_profile_handler(message: Message, state: FSMContext) -> None:
     try:
         await user_service.create(user_data)
     except:
-        await message.answer(PROFILE_CREATION_ERROR_MESSAGE)
+        await message.answer(await UserMessagesTemplate.get_profile_creation_error_message())
     else:
-        await message.answer(PROFILE_CREATED_MESSAGE)
+        await message.answer(await UserMessagesTemplate.get_profile_creation_success_message())
     finally:
         await state.clear()

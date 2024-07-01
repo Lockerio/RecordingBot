@@ -1,9 +1,9 @@
 from app.constants.bot_info import BOT_LINK
 
 
-class OrganizationMessageTemplate:
+class OrganizationMessagesTemplate:
     @staticmethod
-    async def get_create_organization_message(self):
+    async def get_create_organization_message():
         message = "Давайте создадим вашу 'организацию'. Для этого введите ее наименование"
         return message
 
@@ -28,6 +28,6 @@ class OrganizationMessageTemplate:
         return message
 
     @staticmethod
-    async def get_organization_creation_error_message(organization_title, invite_code):
+    async def get_organization_creation_error_message():
         message = "Ошибка в создании организации"
         return message

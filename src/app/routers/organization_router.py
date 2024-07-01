@@ -6,9 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.database.container import organization_service, user_service
-from app.messages_templates.organization_messages_template import CREATE_ORGANIZATION_MESSAGE, \
-    CREATE_ORGANIZATION_SLOTS_MESSAGE, ORGANIZATION_CREATION_ERROR_MESSAGE, CREATED_ORGANIZATION_MESSAGE, \
-    GET_ORGANIZATION_INVITE_CODE_MESSAGE
+from app.messages_templates.organization_messages_template import OrganizationMessagesTemplate
 from app.state_groups.organization_state_group import OrganizationStateGroup
 from app.utils.hash_string import hash_string
 
@@ -18,13 +16,13 @@ organization_router = Router()
 @organization_router.message(Command("create_organization"))
 async def command_create_organization_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(OrganizationStateGroup.organization_name)
-    await message.answer(CREATE_ORGANIZATION_MESSAGE)
+    await message.answer(await OrganizationMessagesTemplate.get_create_organization_message())
 
 
 @organization_router.message(OrganizationStateGroup.organization_name)
 async def wait_organization_title_handler(message: Message, state: FSMContext) -> None:
     await state.update_data(organization_name=message.text)
-    await message.answer(CREATE_ORGANIZATION_SLOTS_MESSAGE)
+    await message.answer(await OrganizationMessagesTemplate.get_create_organization_slots_message())
     await state.set_state(OrganizationStateGroup.default_slots_amount)
 
 
@@ -49,10 +47,10 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
         await organization_service.create(organization_data)
     except Exception as e:
         traceback.print_exc()
-        await message.answer(ORGANIZATION_CREATION_ERROR_MESSAGE)
+        await message.answer(await OrganizationMessagesTemplate.get_organization_creation_error_message())
     else:
-        await message.answer(CREATED_ORGANIZATION_MESSAGE)
-        await message.answer(f"{GET_ORGANIZATION_INVITE_CODE_MESSAGE} `{invite_code}`", parse_mode="MarkdownV2")
+        await message.answer(await OrganizationMessagesTemplate.get_created_organization_message(organization_name))
+        await message.answer(await OrganizationMessagesTemplate.get_organization_invite_code_message(organization_name, invite_code), parse_mode="MarkdownV2")
     finally:
         await state.clear()
 
