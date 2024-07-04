@@ -33,12 +33,17 @@ class OrganizationMessagesTemplate:
         return message
 
     @staticmethod
-    async def get_active_organization_message_template(active_organization_title, organizations_titles):
-        message = (f"Активная организация {active_organization_title}\n\n"
-                   "Список оставшихся организаций:")
+    async def get_active_organization_message_template(organizations_titles, active_organization_title=None):
+        message = ""
 
+        if active_organization_title:
+            message += f"Активная организация {active_organization_title}\n\n"
+        else:
+            message += "Активная организация не выбрана\n\n"
+
+        message += "Список ваших организаций:"
         for organization_title_number, organization_title in enumerate(organizations_titles):
             message += f"\n {organization_title_number + 1}) {organization_title}"
 
-        message += "\n\nДля смены активной организации, нажмите на соответствующую кнопку"
+        message += "\n\nДля активации организации, нажмите на соответствующую кнопку"
         return message

@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.database.container import organization_service, user_service, user_organization_service
+from app.keyboard.inline_keybord.create_active_organization_keyboard import create_active_organization_keyboard
 from app.messages_templates.organization_messages_template import OrganizationMessagesTemplate
 from app.state_groups.organization_state_group import OrganizationStateGroup
 from app.utils.hash_string import hash_string
@@ -67,12 +68,28 @@ async def set_organization_handler(message: Message) -> None:
     user = await user_service.get_one_by_chat_id(message.chat.id)
     user_id = user.id
 
-    active_organization = await user_organization_service.get_one_active_by_user_id(user_id)
+    active_user_organization = await user_organization_service.get_one_active_by_user_id(user_id)
     user_organizations = await user_organization_service.get_all_by_user_id(user_id)
+    user_organizations_ids = [user_organization.organization_id for user_organization in user_organizations]
+    active_user_organization_title = None
 
-    if active_organization:
-        pass
+    if active_user_organization:
+        active_organization = await organization_service.get_one(active_user_organization.organization_id)
+        await user_organizations_ids.pop(active_organization.id)
+        active_user_organization_title = active_organization.organization_name
 
+    organizations = [
+        await organization_service.get_one(user_organizations_ids)
+    ]
 
+    organizations_data = {
+        organization.title: organization.id
+        for organization in organizations
+    }
 
-    # create_active_organization_keyboard
+    mark_up = await create_active_organization_keyboard(organizations_data)
+
+    await message.answer(
+        await OrganizationMessagesTemplate.get_active_organization_message_template(organizations_data, active_user_organization_title),
+        mark_up=mark_up
+    )
