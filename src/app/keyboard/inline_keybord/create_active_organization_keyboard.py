@@ -8,7 +8,7 @@ from app.callback_data.organization_callback_data import OrganizationCallbackDat
 async def create_active_organization_keyboard(organizations_dict: Dict, organization_id_to_be_inactive, buttons_per_row: int = 2):
     keyboard = InlineKeyboardBuilder()
 
-    for title, db_id in organizations_dict.values():
+    for title, db_id in organizations_dict.items():
         keyboard.button(
             text=title,
             callback_data=OrganizationCallbackData(

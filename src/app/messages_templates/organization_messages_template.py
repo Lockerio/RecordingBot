@@ -1,4 +1,4 @@
-from app.constants.bot_info import BOT_LINK
+from app.utils.escape_markdown_v2 import escape_markdown_v2
 
 
 class OrganizationMessagesTemplate:
@@ -21,10 +21,12 @@ class OrganizationMessagesTemplate:
         return message
 
     @staticmethod
-    async def get_organization_invite_code_message(organization_title, invite_code):
-        message = (f"Для подписки на {organization_title} нужно воспользоваться ботом {BOT_LINK}.\n"
-                   "Скопируй инвайт код ниже, нажми на него, и следуй инструкциям бота.\n"
-                   f"{invite_code}")
+    async def get_organization_invite_code_message(organization_title, invite_code, bot_username):
+        message = (f"Для подписки на {organization_title} нужно воспользоваться ботом https://t.me/{bot_username}.\n"
+                   "Скопируйте инвайт код ниже (нажмите на эту страшную последовательность букв) "
+                   "и следуй инструкциям бота.\n\n")
+        message = escape_markdown_v2(message)
+        message += f"`{invite_code}`"
         return message
 
     @staticmethod
