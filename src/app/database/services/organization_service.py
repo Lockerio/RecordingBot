@@ -18,7 +18,7 @@ class OrganizationService:
         return await self.serializer.get_all_by_user_id(user_id)
 
     async def create(self, data):
-        await self.serializer.create(data)
+        return await self.serializer.create(data)
 
     async def update(self, data):
         organization_id = data.get("id")

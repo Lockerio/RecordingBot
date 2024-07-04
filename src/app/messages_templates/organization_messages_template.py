@@ -31,3 +31,14 @@ class OrganizationMessagesTemplate:
     async def get_organization_creation_error_message():
         message = "Ошибка в создании организации"
         return message
+
+    @staticmethod
+    async def get_active_organization_message_template(active_organization_title, organizations_titles):
+        message = (f"Активная организация {active_organization_title}\n\n"
+                   "Список оставшихся организаций:")
+
+        for organization_title_number, organization_title in enumerate(organizations_titles):
+            message += f"\n {organization_title_number + 1}) {organization_title}"
+
+        message += "\n\nДля смены активной организации, нажмите на соответствующую кнопку"
+        return message

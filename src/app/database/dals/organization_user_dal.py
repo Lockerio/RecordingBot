@@ -13,12 +13,18 @@ class UserOrganizationDAO:
             result = await self.session.execute(select(User_Organization).where(User_Organization.id == user_organization_id))
             return await result.scalar()
 
+    async def get_one_active_by_user_id(self, user_id):
+        async with self.session.begin():
+            result = await self.session.execute(select(User_Organization).where((User_Organization.id == user_id) & (User_Organization.is_current_organization == True)))
+            organization = result.scalar_one_or_none()
+            return organization
+
     async def get_all(self):
         async with self.session.begin():
             result = await self.session.execute(select(User_Organization))
             return result.scalars().all()
 
-    async def get_all_user_id(self, user_id):
+    async def get_all_by_user_id(self, user_id):
         async with self.session.begin():
             result = await self.session.execute(select(User_Organization).where(User_Organization.user_id == user_id))
             return result.scalars().all()
