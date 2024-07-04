@@ -33,7 +33,7 @@ class OrganizationMessagesTemplate:
         return message
 
     @staticmethod
-    async def get_active_organization_message_template(organizations_titles, active_organization_title=None):
+    async def get_active_organization_message(organizations_titles, active_organization_title=None):
         message = ""
 
         if active_organization_title:
@@ -46,4 +46,14 @@ class OrganizationMessagesTemplate:
             message += f"\n {organization_title_number + 1}) {organization_title}"
 
         message += "\n\nДля активации организации, нажмите на соответствующую кнопку"
+        return message
+
+    @staticmethod
+    async def get_success_organization_setting_message(organization_title):
+        message = f"Вы поменяли активную организацию на {organization_title}"
+        return message
+
+    @staticmethod
+    async def get_error_organization_setting_message():
+        message = "Не удалось поменять организацию"
         return message
