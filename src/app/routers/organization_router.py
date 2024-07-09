@@ -4,10 +4,12 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from icecream import ic
 
 from app.callback_data.organization_callback_data import OrganizationCallbackData
 from app.database.container import organization_service, user_service, user_organization_service
-from app.keyboard.inline_keybord.create_active_organization_keyboard import create_active_organization_keyboard
+from app.keyboard.inline_keybord.create_active_organization_keyboard import create_active_organization_keyboard, \
+    create_active_organization_keyboard_manual
 from app.messages_templates.organization_messages_template import OrganizationMessagesTemplate
 from app.state_groups.organization_state_group import OrganizationStateGroup
 from app.utils.hash_string import hash_string
@@ -100,14 +102,16 @@ async def set_organization_handler(message: Message) -> None:
             for organization in organizations
         }
 
-        mark_up = await create_active_organization_keyboard(organizations_data, active_user_organization_id)
-
+        mark_up = await create_active_organization_keyboard(organizations_data, active_user_organization_id, 3)
+        print(mark_up)
+        repr(mark_up)
         await message.answer(
-            await OrganizationMessagesTemplate.get_active_organization_message(organizations_data, active_user_organization_title),
-            mark_up=mark_up
+            await OrganizationMessagesTemplate.get_active_organization_message(active_user_organization_title),
+            reply_markup=mark_up
         )
     except Exception:
         traceback.print_exc()
+
 
 @organization_router.callback_query(OrganizationCallbackData.filter())
 async def handle_organization_setting(callback_query: CallbackQuery, callback_data: OrganizationCallbackData) -> None:
@@ -124,7 +128,8 @@ async def handle_organization_setting(callback_query: CallbackQuery, callback_da
                 "is_current_organization": False
             })
 
-        user_organization_to_be_active = await user_organization_service.get_one(
+        user_organization_to_be_active = await user_organization_service.get_one_by_user_id_and_organization_id(
+            user.id,
             callback_data.organization_id_to_be_active
         )
 

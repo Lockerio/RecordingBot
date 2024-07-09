@@ -1,3 +1,5 @@
+from icecream import ic
+
 from app.database.dals.organization_user_dal import UserOrganizationDAO
 
 
@@ -31,6 +33,7 @@ class UserOrganizationService:
 
             is_user_organization_current = data.get("is_current_organization")
             if is_user_organization_current:
+                ic(is_user_organization_current)
                 user_organization.is_current_organization = is_user_organization_current
 
         except Exception:

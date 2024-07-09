@@ -11,7 +11,8 @@ class UserOrganizationDAO:
     async def get_one(self, user_organization_id):
         async with self.session.begin():
             result = await self.session.execute(select(User_Organization).where(User_Organization.id == user_organization_id))
-            return await result.scalar()
+            organization = result.scalar_one_or_none()
+            return organization
 
     async def get_one_active_by_user_id(self, user_id):
         async with self.session.begin():
@@ -21,7 +22,7 @@ class UserOrganizationDAO:
 
     async def get_one_by_user_id_and_organization_id(self, user_id, organization_id):
         async with self.session.begin():
-            result = await self.session.execute(select(User_Organization).where((User_Organization.id == user_id) & (User_Organization.organization_id == organization_id)))
+            result = await self.session.execute(select(User_Organization).where((User_Organization.user_id == user_id) & (User_Organization.organization_id == organization_id)))
             organization = result.scalar_one_or_none()
             return organization
 
