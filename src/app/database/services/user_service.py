@@ -2,28 +2,30 @@ from app.database.dals.user_dal import UserDAO
 
 
 class UserService:
-    def __init__(self, serializer: UserDAO):
-        self.serializer = serializer
+    @staticmethod
+    async def get_one(user_id):
+        return await UserDAO.get_one(user_id)
 
-    async def get_one(self, user_id):
-        return await self.serializer.get_one(user_id)
+    @staticmethod
+    async def get_one_by_chat_id(chat_id):
+        return await UserDAO.get_one_by_chat_id(chat_id)
 
-    async def get_one_by_chat_id(self, chat_id):
-        return await self.serializer.get_one_by_chat_id(chat_id)
+    @staticmethod
+    async def get_all():
+        return await UserDAO.get_all()
 
-    async def get_all(self):
-        return await self.serializer.get_all()
-
-    async def create(self, data):
-        if await self.get_one_by_chat_id(data['chat_id']):
+    @staticmethod
+    async def create(data):
+        if await UserService.get_one_by_chat_id(data['chat_id']):
             return False
-        await self.serializer.create(data)
+        await UserDAO.create(data)
         return True
 
-    async def update(self, data):
+    @staticmethod
+    async def update(data):
         user_chat_id = data.get("chat_id")
         try:
-            user = await self.get_one_by_chat_id(user_chat_id)
+            user = await UserService.get_one_by_chat_id(user_chat_id)
 
             user_fullname = data.get("user_fullname")
             if user_fullname:
@@ -36,7 +38,8 @@ class UserService:
         except Exception:
             raise Exception('There is no such user in db.')
 
-        return await self.serializer.update(user)
+        return await UserDAO.update(user)
 
-    async def delete(self, user_id):
-        await self.serializer.delete(user_id)
+    @staticmethod
+    async def delete(user_id):
+        await UserDAO.delete(user_id)

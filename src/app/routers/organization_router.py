@@ -7,7 +7,9 @@ from aiogram.types import Message, CallbackQuery
 from icecream import ic
 
 from app.callback_data.organization_callback_data import OrganizationCallbackData
-from app.database.container import organization_service, user_service, user_organization_service
+from app.database.services.organization_service import OrganizationService
+from app.database.services.organization_user_service import UserOrganizationService
+from app.database.services.user_service import UserService
 from app.keyboard.inline_keybord.create_active_organization_keyboard import create_active_organization_keyboard, \
     create_active_organization_keyboard_manual
 from app.messages_templates.organization_messages_template import OrganizationMessagesTemplate
@@ -38,7 +40,7 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
     organization_name = data["organization_name"]
     default_slots_amount = data["default_slots_amount"]
     invite_code = await hash_string(organization_name)
-    user = await user_service.get_one_by_chat_id(message.chat.id)
+    user = await UserService.get_one_by_chat_id(message.chat.id)
 
     organization_data = {
         "user_id": user.id,
@@ -48,13 +50,13 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
     }
 
     try:
-        organization = await organization_service.create(organization_data)
+        organization = await OrganizationService.create(organization_data)
         user_organization_data = {
             "user_id": user.id,
             "organization_id": organization.id,
             "is_current_organization": False
         }
-        await user_organization_service.create(user_organization_data)
+        await UserOrganizationService.create(user_organization_data)
 
     except Exception as e:
         traceback.print_exc()
@@ -78,23 +80,23 @@ async def wait_organization_title_handler(message: Message, state: FSMContext) -
 @organization_router.message(Command("set_organization"))
 async def set_organization_handler(message: Message) -> None:
     try:
-        user = await user_service.get_one_by_chat_id(message.chat.id)
+        user = await UserService.get_one_by_chat_id(message.chat.id)
         user_id = user.id
 
-        active_user_organization = await user_organization_service.get_one_active_by_user_id(user_id)
-        user_organizations = await user_organization_service.get_all_by_user_id(user_id)
+        active_user_organization = await UserOrganizationService.get_one_active_by_user_id(user_id)
+        user_organizations = await UserOrganizationService.get_all_by_user_id(user_id)
         user_organizations_ids = [user_organization.organization_id for user_organization in user_organizations]
         active_user_organization_title = None
         active_user_organization_id = None
 
         if active_user_organization:
-            active_organization = await organization_service.get_one(active_user_organization.organization_id)
+            active_organization = await OrganizationService.get_one(active_user_organization.organization_id)
             await user_organizations_ids.pop(active_organization.id)
             active_user_organization_title = active_organization.organization_name
             active_user_organization_id = active_organization.id
 
         organizations = [
-            await organization_service.get_one(user_organization_id) for user_organization_id in user_organizations_ids
+            await OrganizationService.get_one(user_organization_id) for user_organization_id in user_organizations_ids
         ]
 
         organizations_data = {
@@ -116,30 +118,30 @@ async def set_organization_handler(message: Message) -> None:
 @organization_router.callback_query(OrganizationCallbackData.filter())
 async def handle_organization_setting(callback_query: CallbackQuery, callback_data: OrganizationCallbackData) -> None:
     try:
-        user = await user_service.get_one_by_chat_id(callback_query.message.chat.id)
+        user = await UserService.get_one_by_chat_id(callback_query.message.chat.id)
 
         if callback_data.organization_id_to_be_inactive:
-            user_organization_to_be_inactive = await user_organization_service.get_one(
+            user_organization_to_be_inactive = await UserOrganizationService.get_one(
                 callback_data.organization_id_to_be_inactive)
 
-            await user_organization_service.update({
+            await UserOrganizationService.update({
                 "user_id": user.id,
                 "organization_id": user_organization_to_be_inactive.organization_id,
                 "is_current_organization": False
             })
 
-        user_organization_to_be_active = await user_organization_service.get_one_by_user_id_and_organization_id(
+        user_organization_to_be_active = await UserOrganizationService.get_one_by_user_id_and_organization_id(
             user.id,
             callback_data.organization_id_to_be_active
         )
 
-        await user_organization_service.update({
+        await UserOrganizationService.update({
             "user_id": user.id,
             "organization_id": user_organization_to_be_active.organization_id,
             "is_current_organization": True
         })
 
-        organization_to_be_active = await organization_service.get_one(user_organization_to_be_active.organization_id)
+        organization_to_be_active = await OrganizationService.get_one(user_organization_to_be_active.organization_id)
 
         await callback_query.answer(
             await OrganizationMessagesTemplate.get_success_organization_setting_message(

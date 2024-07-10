@@ -4,7 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from app.constants.roles import OWNER
-from app.database.container import role_service, user_service
+from app.database.services.role_service import RoleService
+from app.database.services.user_service import UserService
 from app.messages_templates.role_messages_template import RoleMessagesTemplate
 from app.state_groups.role_state_group import RoleStateGroup
 from app.utils.hash_string import hash_string
@@ -14,7 +15,7 @@ role_router = Router()
 
 @role_router.message(Command("set_owner_role"))
 async def set_owner_role_command_handler(message: Message, state: FSMContext):
-    role = await role_service.get_one_by_title(OWNER)
+    role = await RoleService.get_one_by_title(OWNER)
 
     if role.password_hash:
         await state.update_data(password_hash=message.text)
@@ -22,7 +23,7 @@ async def set_owner_role_command_handler(message: Message, state: FSMContext):
         await state.set_state(RoleStateGroup.password)
 
     else:
-        user_service.update({
+        await UserService.update({
             "chat_id": message.chat.id,
             "role_id": role.id
         })
@@ -44,7 +45,7 @@ async def set_owner_role_handler(message: Message, state: FSMContext):
         }
 
         try:
-            await user_service.create(user_data)
+            await UserService.create(user_data)
         except:
             await message.answer(await RoleMessagesTemplate.get_role_setting_error_message())
         else:

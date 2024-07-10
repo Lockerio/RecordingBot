@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from app.database.container import user_service
+from app.database.services.user_service import UserService
 from app.messages_templates.user_messages_template import UserMessagesTemplate
 from app.state_groups.profile_state_group import ProfileStateGroup
 
@@ -28,7 +28,7 @@ async def create_profile_handler(message: Message, state: FSMContext) -> None:
     }
 
     try:
-        await user_service.create(user_data)
+        await UserService.create(user_data)
     except:
         await message.answer(await UserMessagesTemplate.get_profile_creation_error_message())
     else:

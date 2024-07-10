@@ -1,32 +1,35 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database.database import session_maker
 from app.database.models import Role
 
 
 class RoleDAO:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
-    async def get_one(self, role_id):
-        async with self.session.begin():
-            result = await self.session.execute(select(Role).where(Role.id == role_id))
+    @staticmethod
+    async def get_one(role_id):
+        async with session_maker() as session:
+            result = await session.execute(select(Role).where(Role.id == role_id))
             role = result.scalar_one_or_none()
             return role
 
-    async def get_one_by_title(self, title):
-        async with self.session.begin():
-            result = await self.session.execute(select(Role).where(Role.title == title))
+    @staticmethod
+    async def get_one_by_title(title):
+        async with session_maker() as session:
+            result = await session.execute(select(Role).where(Role.title == title))
             role = result.scalar_one_or_none()
             return role
 
-    async def get_all(self):
-        async with self.session.begin():
-            result = await self.session.execute(select(Role))
+    @staticmethod
+    async def get_all():
+        async with session_maker() as session:
+            result = await session.execute(select(Role))
             return result.scalars().all()
 
-    async def create(self, data):
+    @staticmethod
+    async def create(data):
         role = Role(**data)
-        async with self.session.begin():
-            self.session.add(role)
+        async with session_maker() as session:
+            session.add(role)
+            await session.commit()
         return role

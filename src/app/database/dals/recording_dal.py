@@ -1,35 +1,41 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database.database import session_maker
 from app.database.models import Recording
 
 
 class RecordingDAO:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
-    async def get_one(self, recording_id):
-        async with self.session.begin():
-            result = await self.session.execute(select(Recording).where(Recording.id == recording_id))
+    @staticmethod
+    async def get_one(recording_id):
+        async with session_maker() as session:
+            result = await session.execute(select(Recording).where(Recording.id == recording_id))
             return await result.scalar()
 
-    async def get_all(self):
-        async with self.session.begin():
-            result = await self.session.execute(select(Recording))
+    @staticmethod
+    async def get_all():
+        async with session_maker() as session:
+            result = await session.execute(select(Recording))
             return result.scalars().all()
 
-    async def create(self, data):
+    @staticmethod
+    async def create(data):
         recording = Recording(**data)
-        async with self.session.begin():
-            self.session.add(recording)
+        async with session_maker() as session:
+            session.add(recording)
+            await session.commit()
         return recording
 
-    async def update(self, recording):
-        async with self.session.begin():
-            self.session.add(recording)
+    @staticmethod
+    async def update(recording):
+        async with session_maker() as session:
+            session.add(recording)
+            await session.commit()
         return recording
 
-    async def delete(self, recording_id):
-        recording = await self.get_one(recording_id)
-        async with self.session.begin():
-            await self.session.delete(recording)
+    @staticmethod
+    async def delete(recording_id):
+        recording = await RecordingDAO.get_one(recording_id)
+        async with session_maker() as session:
+            await session.delete(recording)
+            await session.commit()

@@ -2,17 +2,18 @@ from app.database.dals.role_dal import RoleDAO
 
 
 class RoleService:
-    def __init__(self, serializer: RoleDAO):
-        self.serializer = serializer
+    @staticmethod
+    async def get_one(role_id):
+        return await RoleDAO.get_one(role_id)
 
-    async def get_one(self, role_id):
-        return await self.serializer.get_one(role_id)
+    @staticmethod
+    async def get_one_by_title(title):
+        return await RoleDAO.get_one_by_title(title)
 
-    async def get_one_by_title(self, title):
-        return await self.serializer.get_one_by_title(title)
+    @staticmethod
+    async def get_all():
+        return await RoleDAO.get_all()
 
-    async def get_all(self):
-        return await self.serializer.get_all()
-
-    async def create(self, data):
-        await self.serializer.create(data)
+    @staticmethod
+    async def create(data):
+        await RoleDAO.create(data)
